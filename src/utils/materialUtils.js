@@ -1,8 +1,9 @@
 import * as THREE from 'three';
+import loadingManager from '../utils/loadingManager.js';
 import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
 
 export function loadEnvironmentTexture(scene, path) {
-    const loader = new EXRLoader();
+    const loader = new EXRLoader(loadingManager);
     return new Promise((resolve) => {
         loader.load(path, (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
