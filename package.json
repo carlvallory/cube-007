@@ -1,0 +1,20 @@
+{
+  "name": "threejs-interactive-cube-project",
+  "version": "1.0.0",
+  "description": "Project with interactive cube and video features in Three.js",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "gsap": "^3.11.0",
+    "three": "^0.150.0"
+  },
+  "devDependencies": {
+    "vite": "^4.0.0"
+  },
+  "author": "Carlos",
+  "license": "ISC"
+}
