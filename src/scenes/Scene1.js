@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { loadTextMesh } from '../utils/fontLoader.js';
+import { loadEnvironmentTexture } from '../utils/materialUtils.js';
 import { detectHover } from '../controls/cubeHover.js';
 import { smoothRotation } from '../controls/rotateControl.js';
 import { addAmbientLight, addDirectionalLight } from '../utils/lighting.js';
@@ -17,10 +18,15 @@ export class Scene1 {
     }
 
     async start() {
+        // Renderizador
+        this.scene.background = new THREE.Color(0xfefefe);
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.container.appendChild(this.renderer.domElement);
         this.camera.position.z = 5;
         addAmbientLight(this.scene);
         addDirectionalLight(this.scene);
+
+        loadEnvironmentTexture(this.scene, 'src/assets/textures/hdri/environment.exr');
 
         const cubeMaterials = createMaterials(null);
         this.cube = createCube(cubeMaterials);

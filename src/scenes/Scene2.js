@@ -13,6 +13,8 @@ export class Scene2 {
     }
 
     start() {
+        this.scene.background = new THREE.Color(0xfefefe);
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.container.appendChild(this.renderer.domElement);
         this.camera.position.z = 10;
 
