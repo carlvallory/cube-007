@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { loadTextMesh } from '../utils/fontLoader.js';
 import { detectHover } from '../controls/cubeHover.js';
 import { smoothRotation } from '../controls/rotateControl.js';
 import { addAmbientLight, addDirectionalLight } from '../utils/lighting.js';
@@ -15,7 +16,7 @@ export class Scene1 {
         this.cube = null;
     }
 
-    start() {
+    async start() {
         this.container.appendChild(this.renderer.domElement);
         this.camera.position.z = 5;
         addAmbientLight(this.scene);
@@ -24,6 +25,20 @@ export class Scene1 {
         const cubeMaterials = createMaterials(null);
         this.cube = createCube(cubeMaterials);
         this.scene.add(this.cube);
+
+        // Cargar y agregar el texto al cubo
+        const textMesh = await loadTextMesh('Start', 'src/assets/fonts/roboto/Roboto_Regular.typeface.json', {
+            size: 0.25,
+            height: 0.05,
+        }, {
+            color: 0x000000,
+            specular: 0xffffff,
+            shininess: 100,
+        });
+
+        // Posiciona el texto en la cara frontal del cubo
+        textMesh.position.set(-0.4, -0.5, 0.5);
+        this.cube.add(textMesh);
 
         detectHover(this.camera, this.cube, (isHovered) => {
             if (isHovered) {

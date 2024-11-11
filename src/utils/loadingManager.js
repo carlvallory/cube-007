@@ -1,4 +1,4 @@
-import * as THREE from './three.js'; // Asegúrate de usar el import centralizado
+import * as THREE from 'three'; // Asegúrate de usar el import centralizado
 import { updateLoadingScreen, hideLoadingScreen } from './loadingScreen.js';
 
 // Crear el LoadingManager
