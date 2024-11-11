@@ -18,7 +18,8 @@ export class Scene2 {
         this.container.appendChild(this.renderer.domElement);
         this.camera.position.z = 10;
 
-        const videoUrls = ['video1.mp4', 'video2.mp4', 'video3.mp4', 'video4.mp4', 'video5.mp4', 'video6.mp4'];
+        const videoUrls = ['src/assets/videos/video1.mp4', 'src/assets/videos/video2.mp4', 'src/assets/videos/video3.mp4', 
+            'src/assets/videos/video4.mp4', 'src/assets/videos/video5.mp4', 'src/assets/videos/video6.mp4'];
         this.videoCube = createVideoCube(videoUrls);
         this.scene.add(this.videoCube);
 
