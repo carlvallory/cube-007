@@ -6,6 +6,7 @@ import { smoothRotation } from '../controls/rotateControl.js';
 import { addAmbientLight, addDirectionalLight } from '../utils/lighting.js';
 import { createCube } from '../objects/cube.js';
 import { createMaterials } from '../utils/materialUtils.js';
+import { createCubeCamera, updateCubeCamera } from '../utils/cubeReflection.js';
 
 export class Scene1 {
     constructor(container, transition) {
@@ -15,6 +16,10 @@ export class Scene1 {
         this.transition = transition;
         this.container = container;
         this.cube = null;
+
+        const { cubeCamera, cubeRenderTarget } = createCubeCamera();
+        this.cubeCamera = cubeCamera
+        this.cubeRenderTarget = cubeRenderTarget;
     }
 
     async start() {
@@ -28,7 +33,7 @@ export class Scene1 {
 
         loadEnvironmentTexture(this.scene, 'src/assets/textures/hdri/environment.exr');
 
-        const cubeMaterials = createMaterials(null);
+        const cubeMaterials = this.createReflectiveMaterial();
         this.cube = createCube(cubeMaterials);
         this.scene.add(this.cube);
 
@@ -55,8 +60,20 @@ export class Scene1 {
         this.animate();
     }
 
+    // Crear el material reflectante usando el cubemap de CubeCamera
+    createReflectiveMaterial() {
+        return new THREE.MeshStandardMaterial({
+            envMap: this.cubeRenderTarget.texture, // Usa la textura generada por la CubeCamera
+            metalness: 1.0,
+            roughness: 0.0
+        });
+    }
+
     animate = () => {
         requestAnimationFrame(this.animate);
+        if( this.cube ) {
+            updateCubeCamera(this.renderer, this.scene, this.cubeCamera, this.cube);
+        }
         this.renderer.render(this.scene, this.camera);
     };
 
