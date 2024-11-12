@@ -34,7 +34,7 @@ export class Scene1 {
         loadEnvironmentTexture(this.scene, 'src/assets/textures/hdri/environment.exr');
 
         const cubeMaterials = this.createReflectiveMaterial();
-        this.cube = createCube(cubeMaterials);
+        this.cube = createCube(cubeMaterials, { x: 0, y: 0, z: 0}, { x: 4, y: 4, z: 4});
         this.scene.add(this.cube);
 
         // Cargar y agregar el texto al cubo

@@ -16,8 +16,8 @@ export function createObjects() {
     return { cube };
 }
 
-export function createCube(materials) {
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
+export function createCube(materials, position, size) {
+    const geometry = new THREE.BoxGeometry( size.x, size.y, size.z);
     const materialsArray = [
         materials.reflectiveMaterial,
         materials.reflectiveMaterial,
@@ -27,6 +27,6 @@ export function createCube(materials) {
         materials.clearMaterial
     ];
     const cube = new THREE.Mesh(geometry, materialsArray);
-    cube.position.set(0, 0, 0);
+    cube.position.set( position.x, position.y, position.z);
     return cube;
 }
