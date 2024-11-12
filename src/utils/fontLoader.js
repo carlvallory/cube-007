@@ -10,31 +10,25 @@ export function loadTextMesh(text, fontPath, options = {}, materialOptions = {})
         
         fontLoader.load(fontPath, (font) => {
             // Configuración por defecto para la geometría del texto
-            const textGeometry = new TextGeometry(text, {
+            const geometry = new TextGeometry(text, {
                 font: font,
-                size: options.size || 0.25,
-                height: options.height || 0.05,
+                size: options.size || 0.2,
+                height: options.height || 0.02,
                 curveSegments: options.curveSegments || 12,
-                bevelEnabled: options.bevelEnabled !== undefined ? options.bevelEnabled : true,
-                bevelThickness: options.bevelThickness || 0.02,
+                bevelEnabled: options.bevelEnabled || false,
+                bevelThickness: options.bevelThickness || 0.005,
                 bevelSize: options.bevelSize || 0.005,
-                bevelOffset: options.bevelOffset || 0,
-                bevelSegments: options.bevelSegments || 5,
+                bevelSegments: options.bevelSegments || 3,
             });
 
             // Configuración por defecto para el material
-            const textMaterial = new THREE.MeshPhongMaterial({
-                color: materialOptions.color || 0x000000,
-                specular: materialOptions.specular || 0xffffff,
-                shininess: materialOptions.shininess || 100,
-                ...materialOptions
-            });
-
-            const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-            resolve(textMesh);
+            const material = new THREE.MeshPhongMaterial(materialOptions || { color: 0x000000 });
+            const mesh = new THREE.Mesh(geometry, material);
+            resolve(mesh);
         }, undefined, (error) => {
-            console.error('Error al cargar la fuente:', error);
-            reject(error);
+            console.error(`Error al cargar la fuente desde ${fontPath}`, error);
+            //reject(error);
+            resolve(null);
         });
     });
 }
