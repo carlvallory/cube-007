@@ -17,6 +17,7 @@ export class Scene1 {
         this.transition = transition;
         this.container = container;
         this.cube = null;
+        this.cubeMaterials = Array(2).fill(null);
         this.textMesh = null;
         this.targetRotationY = 0;
 
@@ -51,8 +52,9 @@ export class Scene1 {
 
         await loadEnvironmentTexture(this.scene, 'src/assets/textures/hdri/environment.exr');
 
-        const cubeMaterials = this.createReflectiveMaterial();
-        this.cube = createCube(cubeMaterials, { x: 0, y: 0, z: 0}, { x: 4, y: 4, z: 4});
+        this.cubeMaterials.reflectiveMaterial = this.createReflectiveMaterial();
+        this.cubeMaterials.clearMaterial = this.createClearMaterial();
+        this.cube = createCube(this.cubeMaterials, { x: 0, y: 0, z: 0}, { x: 4, y: 4, z: 4});
         this.scene.add(this.cube);
 
         try {
@@ -96,9 +98,38 @@ export class Scene1 {
     createReflectiveMaterial() {
         return new THREE.MeshStandardMaterial({
             envMap: this.cubeRenderTarget.texture, // Usa la textura generada por la CubeCamera
-            metalness: 1.0,
-            roughness: 0.0,
+            envMapIntensity: 1,
+            color: 0xaaaaaa, 
+            opacity: 0.1, // Transparente
+            transparent: true,
+            roughness: 0.05, 
+            metalness: 0, 
+            reflectivity: 0.9,
+            transmission: 1, // Permitir que la luz pase a través
+            clearcoat: 1, 
+            clearcoatRoughness: 0,
+            thickness: -1,
+            ior: 1,
+            sheen: 1, // Simular efectos de dispersión de luz
+            sheenColor: new THREE.Color(0xff00ff), // Efecto prismático con un color inicial
             side: THREE.DoubleSide
+        });
+    }
+
+    createClearMaterial() {
+        return new THREE.MeshStandardMaterial({
+            envMap: this.cubeRenderTarget.texture, // Usa la textura generada por la CubeCamera
+            envMapIntensity: 1,
+            metalness: 0.2,  
+            roughness: 0.1,
+            transmission: 0.9, // Add transparency
+            thickness: -1, // Add refraction
+            reflectivity: 1,
+            ior: 1.3,
+            sheen: 1, // Simular efectos de dispersión de luz
+            sheenColor: new THREE.Color(0x0000ff), // Efecto prismático con un color inicial
+            side: THREE.DoubleSide,
+            lightMapIntensity: 1,
         });
     }
 
