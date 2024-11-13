@@ -8,6 +8,7 @@ import { createCube } from '../objects/cube.js';
 import { createMaterials } from '../utils/materialUtils.js';
 import { createCubeCamera, updateCubeCamera } from '../utils/cubeReflection.js';
 import { setupMouseMove, setupMouseDrag, detectMouseHover, setupMouseClick, smoothMouseRotation } from '../utils/mouseUtils.js';
+import { enableMouseFollow } from '../controls/followMouse.js';
 
 export class Scene1 {
     constructor(container, transition) {
@@ -97,12 +98,15 @@ export class Scene1 {
         if (this.cube instanceof THREE.Object3D) {
             console.log("Cube object before detectHover:", this.cube);
 
+            enableMouseFollow(this.camera, this.cube, this.renderer.domElement);
+
+
             // Set up hover detection after confirming cube is initialized
-            detectHover(this.camera, this.cube, (isHovered) => {
-                if (isHovered) {
-                    smoothRotation(this.cube, new THREE.Euler(0, Math.PI, 0));
-                }
-            });
+            // detectHover(this.camera, this.cube, (isHovered) => {
+            //     if (isHovered) {
+            //         smoothRotation(this.cube, new THREE.Euler(0, Math.PI, 0));
+            //     }
+            // });
         } else {
             console.error("Cube was not created as a THREE.Object3D instance.");
         }
