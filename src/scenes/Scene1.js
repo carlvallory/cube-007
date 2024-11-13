@@ -85,7 +85,7 @@ export class Scene1 {
 
             // Verificar que textMesh esté correctamente cargado antes de acceder a su posición
             if (this.textMesh) {
-                this.textMesh.position.set(-0.4, -0.5, 0.5);
+                this.textMesh.position.set(-0.4, -0.7, 2);
                 this.cube.add(this.textMesh);
             } else {
                 console.error("Error al cargar el textMesh: El archivo de fuente puede estar en una ruta incorrecta o no cargarse.");

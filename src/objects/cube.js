@@ -23,7 +23,7 @@ export function createCube(materials, position, size) {
         materials.reflectiveMaterial,
         materials.reflectiveMaterial,
         materials.reflectiveMaterial,
-        materials.clearMaterial,
+        materials.reflectiveMaterial,
         materials.clearMaterial
     ];
     const cube = new THREE.Mesh(geometry, materialsArray);
