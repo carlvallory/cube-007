@@ -22,26 +22,35 @@ export function detectHover(camera, cube, onHover) {
         raycaster.setFromCamera(mouse, camera);
 
         if (cube && cube.material) {
-            // Si el material es un array (para objetos con múltiples materiales), verifica cada uno
+            // Handle both single material and multi-material scenarios
             const materials = Array.isArray(cube.material) ? cube.material : [cube.material];
-            // Check each material for validity
-            let allMaterialsValid = true;
-            materials.forEach((mat, index) => {
-                if (!mat) {
-                    console.warn(`Material at index ${index} is missing or undefined.`);
-                    allMaterialsValid = false;
-                } else if (mat.side === undefined) {
-                    console.warn(`Material at index ${index} is missing the 'side' property.`);
-                    allMaterialsValid = false;
-                }
-            });
+            
+            // Identify invalid materials that are missing or lack the `side` property
+            const invalidMaterials = materials
+                .map((mat, index) => ({ mat, index }))
+                .filter(({ mat }) => !mat || mat.side === undefined);
 
-            // Only proceed with raycasting if all materials are valid
-            if (allMaterialsValid) {
-                const intersects = raycaster.intersectObject(cube);
-                onHover(intersects.length > 0);
+            if (invalidMaterials.length === 0) {
+                // Proceed with raycasting if all materials are valid
+                if (cube && cube.layers) {
+                    try {
+                        const intersects = raycaster.intersectObject(cube);
+                        onHover(intersects.length > 0);
+                    } catch (error) {
+                        console.error("Error during intersection check:", error);
+                    }
+                } else {
+                    console.warn("The object is missing required properties or is null.");
+                }
             } else {
-                console.warn('One or more materials on the cube are not configured correctly.');
+                console.warn(`One or more materials on the cube are misconfigured:`);
+                invalidMaterials.forEach(({ mat, index }) => {
+                    if (!mat) {
+                        console.warn(`Material at index ${index} is undefined or null.`);
+                    } else if (mat.side === undefined) {
+                        console.warn(`Material at index ${index} is missing the 'side' property.`);
+                    }
+                });
             }
         } else {
             console.warn('El cubo o su material están indefinidos.');

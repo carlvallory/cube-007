@@ -46,9 +46,32 @@ export function setupMouseDrag(domElement) {
  * @returns {boolean} - `true` si el mouse está sobre el objeto.
  */
 export function detectMouseHover(camera, object) {
+    // Verificar que la cámara y el objeto son válidos
+    if (!camera || !(camera instanceof THREE.Camera)) {
+        console.error('Invalid camera provided to detectMouseHover.');
+        return false;
+    }
+
+    if (!object || !(object instanceof THREE.Object3D)) {
+        console.error('Invalid object provided to detectMouseHover. Expected a THREE.Object3D instance.');
+        return false;
+    }
+
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObject(object);
-    return intersects.length > 0;
+
+    // Verificar que el objeto tiene las propiedades necesarias
+    if (object && object.layers) {
+        try {
+            const intersects = raycaster.intersectObject(object);
+            return intersects.length > 0;
+        } catch (error) {
+            console.error("Error during intersection check in detectMouseHover:", error);
+            return false;
+        }
+    } else {
+        console.warn("The object is missing required properties or is null.");
+        return false;
+    }
 }
 
 /**
@@ -58,15 +81,38 @@ export function detectMouseHover(camera, object) {
  * @param {function} onClickCallback - Función a ejecutar si se detecta intersección en clic.
  */
 export function setupMouseClick(camera, object, onClickCallback) {
+
+    // Verificar que la cámara y el objeto son válidos
+    if (!camera || !(camera instanceof THREE.Camera)) {
+        console.error('Invalid camera provided to setupMouseClick.');
+        return;
+    }
+
+    if (!object || !(object instanceof THREE.Object3D)) {
+        console.error('Invalid object provided to setupMouseClick. Expected a THREE.Object3D instance.');
+        return;
+    }
+
     window.addEventListener('click', (event) => {
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObject(object);
 
-        if (intersects.length > 0) {
-            onClickCallback(event, intersects);
+        // Ensure the object is fully initialized and has required properties
+        if (object && object.layers) {
+            try {
+                const intersects = raycaster.intersectObject(object);
+
+                if (intersects.length > 0) {
+                    onClickCallback(event, intersects);
+                }
+
+            } catch (error) {
+                console.error("Error during intersection check in setupMouseClick:", error);
+            }
+        } else {
+            console.warn("The object is missing required properties or is null in setupMouseClick.");
         }
     });
 }

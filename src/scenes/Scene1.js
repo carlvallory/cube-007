@@ -46,7 +46,7 @@ export class Scene1 {
         this.scene.background = new THREE.Color(0xfefefe);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.container.appendChild(this.renderer.domElement);
-        this.camera.position.z = 5;
+        this.camera.position.z = 10;
         addAmbientLight(this.scene);
         addDirectionalLight(this.scene);
 
@@ -79,11 +79,19 @@ export class Scene1 {
             console.error("Error al cargar el textMesh:", error);
         }
 
-        detectHover(this.camera, this.cube, (isHovered) => {
-            if (isHovered) {
-                smoothRotation(this.cube, new THREE.Euler(0, Math.PI, 0));
-            }
-        });
+        // Verify cube is initialized and then set up hover detection
+        if (this.cube instanceof THREE.Object3D) {
+            console.log("Cube object before detectHover:", this.cube);
+
+            // Set up hover detection after confirming cube is initialized
+            detectHover(this.camera, this.cube, (isHovered) => {
+                if (isHovered) {
+                    smoothRotation(this.cube, new THREE.Euler(0, Math.PI, 0));
+                }
+            });
+        } else {
+            console.error("Cube was not created as a THREE.Object3D instance.");
+        }
 
         this.animate();
     }
@@ -96,7 +104,7 @@ export class Scene1 {
 
     // Crear el material reflectante usando el cubemap de CubeCamera
     createReflectiveMaterial() {
-        return new THREE.MeshStandardMaterial({
+        return new THREE.MeshPhysicalMaterial({
             envMap: this.cubeRenderTarget.texture, // Usa la textura generada por la CubeCamera
             envMapIntensity: 1,
             color: 0xaaaaaa, 
@@ -117,7 +125,7 @@ export class Scene1 {
     }
 
     createClearMaterial() {
-        return new THREE.MeshStandardMaterial({
+        return new THREE.MeshPhysicalMaterial({
             envMap: this.cubeRenderTarget.texture, // Usa la textura generada por la CubeCamera
             envMapIntensity: 1,
             metalness: 0.2,  
