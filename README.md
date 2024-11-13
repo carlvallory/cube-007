@@ -26,8 +26,8 @@ Asegúrate de tener instalados los siguientes componentes:
 
 1. Clona este repositorio:
     ```bash
-    git clone https://github.com/tuusuario/nombre-del-repositorio.git
-    cd nombre-del-repositorio
+    git clone https://github.com/carlvallory/cube-007.git
+    cd cube-007
     ```
 
 2. Instala las dependencias del proyecto:
