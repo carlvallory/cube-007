@@ -13,7 +13,7 @@ let isMouseOver = false;
 export function enableMouseFollow(camera, cube, domElement) {
 
     // Suavizado de rotación
-    const lerpFactor = 0.1;  // Ajusta este valor para cambiar la velocidad de seguimiento
+    const lerpFactor = 0.05;  // Ajusta este valor para cambiar la velocidad de seguimiento
 
     // Detecta si el mouse está sobre el cubo
     domElement.addEventListener('mousemove', (event) => {
