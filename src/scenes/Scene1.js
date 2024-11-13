@@ -17,9 +17,14 @@ export class Scene1 {
         this.transition = transition;
         this.container = container;
         this.cube = null;
-        this.cubeMaterials = Array(2).fill(null);
         this.textMesh = null;
         this.targetRotationY = 0;
+
+        // Inicializar materiales del cubo
+        this.cubeMaterials = {
+            reflectiveMaterial: null,
+            clearMaterial: null,
+        };
 
         const { cubeCamera, cubeRenderTarget } = createCubeCamera();
         this.cubeCamera = cubeCamera
@@ -42,7 +47,7 @@ export class Scene1 {
     }
 
     async start() {
-        // Renderizador
+        // Configuración de la escena y el renderizador
         this.scene.background = new THREE.Color(0xfefefe);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.container.appendChild(this.renderer.domElement);
@@ -50,15 +55,24 @@ export class Scene1 {
         addAmbientLight(this.scene);
         addDirectionalLight(this.scene);
 
+        // Cargar el entorno de iluminación
         await loadEnvironmentTexture(this.scene, 'src/assets/textures/hdri/environment.exr');
 
+        // Crear los materiales y el cubo
         this.cubeMaterials.reflectiveMaterial = this.createReflectiveMaterial();
         this.cubeMaterials.clearMaterial = this.createClearMaterial();
+
         this.cube = createCube(this.cubeMaterials, { x: 0, y: 0, z: 0}, { x: 4, y: 4, z: 4});
-        this.scene.add(this.cube);
+        
+        // Verificar si el cubo se creó correctamente antes de agregarlo a la escena
+        if (this.cube) {
+            this.scene.add(this.cube);
+        } else {
+            console.error("Error al crear el cubo. Verifica que los materiales sean válidos.");
+        }
 
         try {
-            // Cargar y agregar el texto al cubo
+            // Cargar y agregar el texto en la cara frontal del cubo
             this.textMesh = await loadTextMesh('Start', 'src/assets/fonts/roboto/Roboto_Regular.typeface.json', {
                 size: 0.25,
                 height: 0.05,
@@ -79,7 +93,7 @@ export class Scene1 {
             console.error("Error al cargar el textMesh:", error);
         }
 
-        // Verify cube is initialized and then set up hover detection
+        // Configurar detección de hover solo si el cubo está correctamente creado
         if (this.cube instanceof THREE.Object3D) {
             console.log("Cube object before detectHover:", this.cube);
 
