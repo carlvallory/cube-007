@@ -63,7 +63,7 @@ src/
 
 ## Descripción de los módulos
 **cubeHover.js:** Detecta cuándo el mouse está sobre el cubo y ejecuta las acciones correspondientes.
-**followMouse.js:** Controla la rotación del cubo para que siga el mouse cuando está sobre él. Utiliza interpolación para una rotación suave.
+**followMouse.js:** Controla la rotación del cubo para que siga el mouse cuando está sobre él.
 **materialUtils.js:** Contiene funciones para crear materiales reflectantes y transparentes.
 **Scene1.js:** Configura la escena principal, inicializa el cubo y los materiales, y gestiona la animación.
 **cubeReflection.js:** Configura una cámara de cubo para reflejos en el cubo.
