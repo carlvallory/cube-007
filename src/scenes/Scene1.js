@@ -9,6 +9,7 @@ import { createMaterials } from '../utils/materialUtils.js';
 import { createCubeCamera, updateCubeCamera } from '../utils/cubeReflection.js';
 import { setupMouseMove, setupMouseDrag, detectMouseHover, setupMouseClick, smoothMouseRotation } from '../utils/mouseUtils.js';
 import { enableMouseFollow } from '../controls/followMouse.js';
+import { createWorld } from '../objects/world.js';
 
 export class Scene1 {
     constructor(container, transition) {
@@ -18,6 +19,7 @@ export class Scene1 {
         this.transition = transition;
         this.container = container;
         this.cube = null;
+        this.sphere = null;
         this.textMesh = null;
         this.targetRotationY = 0;
 
@@ -56,27 +58,53 @@ export class Scene1 {
         addAmbientLight(this.scene);
         addDirectionalLight(this.scene);
 
-        // Cargar el entorno de iluminación
-        await loadEnvironmentTexture(this.scene, 'src/assets/textures/hdri/environment.exr');
+        try {
+            // Cargar el entorno de iluminación
+            const hdriPath = 'src/assets/textures/hdri/environment.exr';
+            const texture = await loadEnvironmentTexture(this.scene, hdriPath);
+            console.log('entorno de iluminacion cargada y aplicada:', texture);
 
-        // Crear los materiales y el cubo
-        this.cubeMaterials.reflectiveMaterial = this.createReflectiveMaterial();
-        this.cubeMaterials.clearMaterial = this.createClearMaterial();
+        } catch (error) {
+            console.error("Error al cargar el entorno de iluminacion:", error);
+        }
 
-        this.cube = createCube(this.cubeMaterials, { x: 0, y: 0, z: 0}, { x: 4, y: 4, z: 4});
-        
-        // Verificar si el cubo se creó correctamente antes de agregarlo a la escena
-        if (this.cube) {
-            this.scene.add(this.cube);
-        } else {
-            console.error("Error al crear el cubo. Verifica que los materiales sean válidos.");
+        try {
+            // Crear los materiales y el cubo
+            this.cubeMaterials.reflectiveMaterial = this.createReflectiveMaterial();
+            this.cubeMaterials.clearMaterial = this.createClearMaterial();
+
+            this.cube = createCube(this.cubeMaterials, { x: 0, y: 0, z: 0}, { x: 4, y: 4, z: 4});
+            
+            // Verificar si el cubo se creó correctamente antes de agregarlo a la escena
+            if (this.cube) {
+                this.scene.add(this.cube);
+            } else {
+                console.error("Error al crear el cubo. Verifica que los materiales sean válidos.");
+            }
+
+            this.sphere = createWorld('https://i.imgur.com/kFoWvzw.jpg', {x: 0, y: 0, z: 0}, {radius: 1.5, widhtSegments: 32, heighSegments: 32});
+
+            // Verificar si la esfera se creó correctamente antes de agregarlo a la escena
+            if (this.sphere) {
+                this.cube.add(this.sphere);
+            } else {
+                console.error("Error al crear la esfera. Verifica que los materiales sean válidos.");
+            }
+        } catch (error) {
+            console.error("Error al crear el cubo o la esfera:", error);
         }
 
         try {
             // Cargar y agregar el texto en la cara frontal del cubo
-            this.textMesh = await loadTextMesh('Start', 'src/assets/fonts/roboto/Roboto_Regular.typeface.json', {
+            const fontPath = 'src/assets/fonts/roboto/Roboto_Regular.typeface.json';
+            this.textMesh = await loadTextMesh('Start', fontPath, {
                 size: 0.25,
                 height: 0.05,
+                bevelEnabled: true,
+                bevelThickness: 0.02,
+                bevelSize: 0.005,
+                bevelOffset: 0,
+                bevelSegments: 5
             }, {
                 color: 0x000000,
                 specular: 0xffffff,
@@ -85,7 +113,7 @@ export class Scene1 {
 
             // Verificar que textMesh esté correctamente cargado antes de acceder a su posición
             if (this.textMesh) {
-                this.textMesh.position.set(-0.4, -0.7, 2);
+                this.textMesh.position.set(-0.4, -0.5, 2);
                 this.cube.add(this.textMesh);
             } else {
                 console.error("Error al cargar el textMesh: El archivo de fuente puede estar en una ruta incorrecta o no cargarse.");

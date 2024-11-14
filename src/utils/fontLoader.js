@@ -18,6 +18,7 @@ export function loadTextMesh(text, fontPath, options = {}, materialOptions = {})
                 bevelEnabled: options.bevelEnabled || false,
                 bevelThickness: options.bevelThickness || 0.005,
                 bevelSize: options.bevelSize || 0.005,
+                bevelOffset: options.bevelOffset || 0,
                 bevelSegments: options.bevelSegments || 3,
             });
 

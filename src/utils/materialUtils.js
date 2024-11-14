@@ -2,15 +2,15 @@ import * as THREE from 'three';
 import loadingManager from '../utils/loadingManager.js';
 import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
 
-export function loadEnvironmentTexture(scene, path) {
-    const loader = new EXRLoader(loadingManager);
-    return new Promise((resolve) => {
-        loader.load(path, (texture) => {
+export function loadEnvironmentTexture(scene, texturePath) {
+    return new Promise((resolve, reject) => {
+        const loader = new EXRLoader(loadingManager);
+        loader.load(texturePath, (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             scene.environment = texture;
             scene.background = texture;
             resolve(texture);
-        });
+        }, undefined, reject);
     });
 }
 
