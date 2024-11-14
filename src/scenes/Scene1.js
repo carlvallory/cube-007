@@ -39,14 +39,6 @@ export class Scene1 {
         });
 
         setupMouseDrag(this.renderer.domElement);
-
-        setupMouseClick(this.camera, this.textMesh, (event, intersects) => {
-            // Acción al hacer clic sobre el objeto textMesh
-            if (intersects.length > 0) {
-                // Acción al hacer clic sobre el objeto textMesh
-                this.handleTextClick();
-            }
-        });
     }
 
     async start() {
@@ -115,6 +107,13 @@ export class Scene1 {
             if (this.textMesh) {
                 this.textMesh.position.set(-0.4, -0.5, 2);
                 this.cube.add(this.textMesh);
+
+                // Configurar el clic en el texto después de que esté completamente inicializado
+                setupMouseClick(this.camera, this.textMesh, (event, intersects) => {
+                    if (intersects.length > 0) {
+                        this.handleTextClick();
+                    }
+                });
             } else {
                 console.error("Error al cargar el textMesh: El archivo de fuente puede estar en una ruta incorrecta o no cargarse.");
             }
@@ -146,6 +145,7 @@ export class Scene1 {
     handleTextClick() {
         console.log('Texto "Start" clickeado');
         // Aquí puedes definir cualquier acción al hacer clic en el texto
+        this.transition();
     }
 
     // Crear el material reflectante usando el cubemap de CubeCamera
