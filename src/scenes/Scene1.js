@@ -10,6 +10,7 @@ import { createCubeCamera, updateCubeCamera } from '../utils/cubeReflection.js';
 import { setupMouseMove, setupMouseDrag, detectMouseHover, setupMouseClick, smoothMouseRotation } from '../utils/mouseUtils.js';
 import { enableMouseFollow } from '../controls/followMouse.js';
 import { createWorld } from '../objects/world.js';
+import { animateCameraTransition } from '../utils/transitionUtils.js';
 
 export class Scene1 {
     constructor(container, transition) {
@@ -145,7 +146,7 @@ export class Scene1 {
     handleTextClick() {
         console.log('Texto "Start" clickeado');
         // Aquí puedes definir cualquier acción al hacer clic en el texto
-        this.transition();
+        animateCameraTransition(this.camera, this.cube, this.renderer, this.scene, this.transition);
     }
 
     // Crear el material reflectante usando el cubemap de CubeCamera
