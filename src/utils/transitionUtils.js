@@ -16,8 +16,18 @@ export function animateCameraTransition(camera, object, renderer, scene, onCompl
     options.cameraIsActive = true;
     
     const animate = () => {
+        
+        // Rotar el cubo continuamente alrededor del eje Y
+        object.rotation.y += 0.1; // Ajusta la velocidad de rotación según tus preferencias
+
         if (animationProgress < 1) {
             animationProgress += 0.02; // Ajustar velocidad de la animación
+
+            if (options.cameraAnimationActive) {
+                // Rotar el cubo continuamente alrededor del eje Y
+                cube.rotation.y += 0.1; // Ajusta la velocidad de rotación según tus preferencias
+
+            }
 
             // Interpolar la posición de la cámara
             camera.position.lerpVectors(startPosition, targetPosition, animationProgress);
@@ -31,6 +41,7 @@ export function animateCameraTransition(camera, object, renderer, scene, onCompl
             // Llamar a la función de callback al completar la transición
             if (onComplete) onComplete();
         }
+        
     };
 
     animate();
