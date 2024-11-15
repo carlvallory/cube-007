@@ -9,7 +9,7 @@ import { createMaterials } from '../utils/materialUtils.js';
 import { createCubeCamera, updateCubeCamera } from '../utils/cubeReflection.js';
 import { setupMouseMove, setupMouseDrag, detectMouseHover, setupMouseClick, smoothMouseRotation } from '../utils/mouseUtils.js';
 import { enableMouseFollow } from '../controls/followMouse.js';
-import { createWorld } from '../objects/world.js';
+import { createWorld, rotateWorld } from '../objects/world.js';
 import { animateCameraTransition } from '../utils/transitionUtils.js';
 
 export class Scene1 {
@@ -192,6 +192,7 @@ export class Scene1 {
         requestAnimationFrame(this.animate);
         if( this.cube ) {
             updateCubeCamera(this.renderer, this.scene, this.cubeCamera, this.cube);
+            rotateWorld(this.sphere);
             // Aplicar una rotación suave al cubo según la rotación objetivo en Y
             smoothMouseRotation(this.cube, this.targetRotationY);
         }
