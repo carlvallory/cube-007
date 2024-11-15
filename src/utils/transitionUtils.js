@@ -8,10 +8,13 @@ import * as THREE from 'three';
  * @param {THREE.Scene} scene - La escena actual que se está renderizando.
  * @param {function} onComplete - Función a ejecutar al completar la transición.
  */
-export function animateCameraTransition(camera, object, renderer, scene, onComplete) {
+export function animateCameraTransition(camera, object, renderer, scene, onComplete, options = { cameraIsActive: false}) {
     let animationProgress = 0;
     const startPosition = camera.position.clone();
     const targetPosition = object.position.clone();
+
+    options.cameraIsActive = true;
+    
     const animate = () => {
         if (animationProgress < 1) {
             animationProgress += 0.02; // Ajustar velocidad de la animación

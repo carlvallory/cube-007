@@ -16,6 +16,7 @@ export class Scene1 {
     constructor(container, transition) {
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        this.cameraIsActive = false;
         this.renderer = new THREE.WebGLRenderer();
         this.transition = transition;
         this.container = container;
@@ -146,7 +147,7 @@ export class Scene1 {
     handleTextClick() {
         console.log('Texto "Start" clickeado');
         // Aquí puedes definir cualquier acción al hacer clic en el texto
-        animateCameraTransition(this.camera, this.cube, this.renderer, this.scene, this.transition);
+        animateCameraTransition(this.camera, this.cube, this.renderer, this.scene, this.transition, { cameraIsActive: this.cameraIsActive});
     }
 
     // Crear el material reflectante usando el cubemap de CubeCamera
