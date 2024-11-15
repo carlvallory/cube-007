@@ -14,7 +14,8 @@ export function createCubeCamera() {
 export function updateCubeCamera(renderer, scene, cubeCamera, reflectiveObject) {
     // Coloca la CubeCamera en la misma posición del objeto reflectante
     cubeCamera.position.copy(reflectiveObject.position);
-
+    reflectiveObject.visible = false;  // Evita que el cubo se refleje a sí mismo
     // Actualiza la CubeCamera para capturar el entorno
     cubeCamera.update(renderer, scene);
+    reflectiveObject.visible = true;
 }
