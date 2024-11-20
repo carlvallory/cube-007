@@ -152,15 +152,8 @@ export function setupMouseClick(camera, object, onClickCallback) {
  * @param {number} targetRotation - Ángulo de rotación objetivo en el eje XY.
  * @param {number} lerpFactor - Factor de suavizado de la rotación.
  */
-export function smoothMouseRotation(object, targetRotation, duration = 0.1) {
-    object.rotation.y = object.rotation.y + (targetRotation.y - object.rotation.y) * duration;
-
-    // gsap.to(object.rotation, {
-    //     x: (targetRotation.x - object.rotation.x),
-    //     y: (targetRotation.y - object.rotation.y),
-    //     duration: 0.1,
-    //     ease: 'power3.out',
-    // });
+export function smoothMouseRotation(object, targetRotation, lerpFactor = 0.1) {
+    object.rotation.y += (targetRotation.y - object.rotation.y) * lerpFactor;
 }
 
 function throttle(callback, delay) {

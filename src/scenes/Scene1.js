@@ -8,7 +8,7 @@ import { addAmbientLight, addDirectionalLight } from '../utils/lighting.js';
 import { createCube } from '../objects/cube.js';
 import { createMaterials } from '../utils/materialUtils.js';
 import { createCubeCamera, updateCubeCamera } from '../utils/cubeReflection.js';
-import { setupMouseMove, setupMouseDrag, detectMouseHover, setupMouseClick, smoothMouseRotation } from '../utils/mouseUtils.js';
+import { setupMouseClick, smoothMouseRotation } from '../utils/mouseUtils.js';
 import { enableMouseFollow } from '../controls/followMouse.js';
 import { createWorld, rotateWorld } from '../objects/world.js';
 import { animateCameraTransition } from '../utils/transitionUtils.js';
@@ -28,8 +28,11 @@ export class Scene1 {
         this.sphere = null;
         this.textMesh = null;
         this.isDragging = false;
-        this.targetRotation = {x: 0, y: 0, z: 0};
+        this.previousMousePosition = { x: 0, y: 0 };
+        this.targetRotation = {x: 0, y: 0};
         this.gui = null
+
+        this.setupMouseEvents();
 
         // Inicializar materiales del cubo
         this.cubeMaterials = {
@@ -51,8 +54,8 @@ export class Scene1 {
         addAmbientLight(this.scene);
         addDirectionalLight(this.scene);
 
+        // Cargar el entorno de iluminación
         try {
-            // Cargar el entorno de iluminación
             const hdriPath = 'src/assets/textures/hdri/environment.exr';
             const texture = await loadEnvironmentTexture(this.scene, hdriPath);
             console.log('entorno de iluminacion cargada y aplicada:', texture);
@@ -61,8 +64,8 @@ export class Scene1 {
             console.error("Error al cargar el entorno de iluminacion:", error);
         }
 
+        // Crear los materiales y el cubo
         try {
-            // Crear los materiales y el cubo
             this.cubeMaterials.reflectiveMaterial = this.createReflectiveMaterial();
             this.cubeMaterials.clearMaterial = this.createClearMaterial();
 
@@ -70,80 +73,28 @@ export class Scene1 {
             
             // Verificar si el cubo se creó correctamente antes de agregarlo a la escena
             if (this.cube) {
-                //this.cubeGroup.add(this.cube);
-                this.sphere = createWorld('https://i.imgur.com/kFoWvzw.jpg', {x: 0, y: 0, z: 0}, {radius: 1.5, widhtSegments: 32, heighSegments: 32});
+                this.scene.add(this.cube);
+                this.sphere = createWorld(
+                    'https://i.imgur.com/kFoWvzw.jpg', 
+                    {x: 0, y: 0, z: 0}, 
+                    {radius: 1.5, widhtSegments: 32, heighSegments: 32}
+                );
 
                 // Verificar si la esfera se creó correctamente antes de agregarlo a la escena
                 if (this.sphere) {
                     this.cube.add(this.sphere);
 
-                    try {
-                        // Cargar y agregar el texto en la cara frontal del cubo
-                        const fontPath = 'src/assets/fonts/roboto/Roboto_Regular.typeface.json';
-                        this.textMesh = await loadTextMesh('Start', fontPath, {
-                            size: 0.25,
-                            height: 0.05,
-                            bevelEnabled: true,
-                            bevelThickness: 0.02,
-                            bevelSize: 0.005,
-                            bevelOffset: 0,
-                            bevelSegments: 5
-                        }, {
-                            color: 0x000000,
-                            specular: 0xffffff,
-                            shininess: 100,
-                        });
-            
-                        // Verificar que textMesh esté correctamente cargado antes de acceder a su posición
-                        if (this.textMesh) {
-                            this.textMesh.position.set(-0.4, -0.5, 2);
-                            this.cube.add(this.textMesh);
-            
-                            // Configurar el clic en el texto después de que esté completamente inicializado
-                            setupMouseClick(this.camera, this.textMesh, (event, intersects) => {
-                                if (intersects.length > 0) {
-                                    this.handleTextClick();
-                                }
-                            });
-                        } else {
-                            console.error("Error al cargar el textMesh: El archivo de fuente puede estar en una ruta incorrecta o no cargarse.");
-                        }
-                    } catch (error) {
-                        console.error("Error al cargar el textMesh:", error);
-                    }
-
                 } else {
                     console.error("Error al crear la esfera. Verifica que los materiales sean válidos.");
                 }
 
-                this.scene.add(this.cube);
+                // Load text mesh
+                await this.addTextToCube();
 
                 // Aplicar la animación de vaivén al cubo
                 animateRotationVaiven(this.cube);
 
-                //Configurar el arrastre del cubo
-                setupMouseDrag(this.renderer.domElement, {
-                    onStart: () => {
-                        console.log('Drag started');
-                        this.cube.userData.isDragging = true; // Evitar conflicto con otras animaciones
-                    },
-                    onDrag: (deltaX, deltaY) => {
-                        if (this.cube.userData.isDragging) {
-                            // this.cube.rotation.y += deltaX * 0.001;
-                            // this.cube.rotation.x += deltaY * 0.001;
-                            gsap.to(this.cube.rotation, {
-                                x: this.cube.rotation.x + deltaY * 0.01,
-                                y: this.cube.rotation.y + deltaX * 0.01,
-                                duration: 0.1,
-                                ease: 'power1.out',
-                            });
-                        }
-                    },
-                    onEnd: () => {
-                        console.log('Drag ended');
-                        this.cube.userData.isDragging = false;
-                    },
-                });
+                
             } else {
                 console.error("Error al crear el cubo. Verifica que los materiales sean válidos.");
             }
@@ -155,21 +106,21 @@ export class Scene1 {
         
 
         // Configurar detección de hover solo si el cubo está correctamente creado
-        if (this.cube instanceof THREE.Object3D) {
-            console.log("Cube object before detectHover:", this.cube);
+        // if (this.cube instanceof THREE.Object3D) {
+        //     console.log("Cube object before detectHover:", this.cube);
 
-            enableMouseFollow(this.camera, this.cube, this.renderer.domElement);
+        //     enableMouseFollow(this.camera, this.cube, this.renderer.domElement);
 
 
-            // Set up hover detection after confirming cube is initialized
-            // detectHover(this.camera, this.cube, (isHovered) => {
-            //     if (isHovered) {
-            //         smoothRotation(this.cube, new THREE.Euler(0, Math.PI, 0));
-            //     }
-            // });
-        } else {
-            console.error("Cube was not created as a THREE.Object3D instance.");
-        }
+        //     // Set up hover detection after confirming cube is initialized
+        //     // detectHover(this.camera, this.cube, (isHovered) => {
+        //     //     if (isHovered) {
+        //     //         smoothRotation(this.cube, new THREE.Euler(0, Math.PI, 0));
+        //     //     }
+        //     // });
+        // } else {
+        //     console.error("Cube was not created as a THREE.Object3D instance.");
+        // }
 
         this.initGUI();
 
@@ -180,6 +131,7 @@ export class Scene1 {
     handleTextClick() {
         console.log('Texto "Start" clickeado');
         // Aquí puedes definir cualquier acción al hacer clic en el texto
+        this.targetRotation.y += Math.PI;
         animateCameraTransition(this.camera, this.cube, this.renderer, this.scene, this.transition, { cameraIsActive: this.cameraIsActive});
     }
 
@@ -219,6 +171,67 @@ export class Scene1 {
             sheenColor: new THREE.Color(0x0000ff), // Efecto prismático con un color inicial
             side: THREE.DoubleSide,
             lightMapIntensity: 1,
+        });
+    }
+
+    async addTextToCube() {
+        try {
+            const fontPath = 'src/assets/fonts/roboto/Roboto_Regular.typeface.json';
+            this.textMesh = await loadTextMesh('Start', fontPath, {
+                size: 0.25,
+                height: 0.05,
+                bevelEnabled: true,
+                bevelThickness: 0.02,
+                bevelSize: 0.005,
+                bevelOffset: 0,
+                bevelSegments: 5,
+            }, {
+                color: 0x000000,
+                specular: 0xffffff,
+                shininess: 100,
+            });
+
+            if (this.textMesh) {
+                this.textMesh.position.set(-0.4, -0.5, 2);
+                this.cube.add(this.textMesh);
+
+                setupMouseClick(this.camera, this.textMesh, () => this.handleTextClick());
+            }
+        } catch (error) {
+            console.error('Error adding text to cube:', error);
+        }
+    }
+
+    setupMouseEvents() {
+        const canvas = this.renderer.domElement;
+
+        canvas.addEventListener('mousedown', (event) => {
+            this.isDragging = true;
+            this.previousMousePosition.x = event.clientX;
+            this.previousMousePosition.y = event.clientY;
+        });
+
+        canvas.addEventListener('mousemove', (event) => {
+            if (this.isDragging && this.cube) {
+                const deltaMove = {
+                    x: event.clientX - this.previousMousePosition.x,
+                    y: event.clientY - this.previousMousePosition.y,
+                };
+
+                // Rotate cube based on mouse movement
+                this.cube.rotation.y += deltaMove.x * 0.01;
+
+                this.previousMousePosition.x = event.clientX;
+                this.previousMousePosition.y = event.clientY;
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            this.isDragging = false;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            this.isDragging = false;
         });
     }
 
@@ -267,10 +280,10 @@ export class Scene1 {
     animate = () => {
         requestAnimationFrame(this.animate);
         if( this.cube ) {
-            if (!this.cube.userData.isDragging) {
-                //smoothMouseRotation(this.cube, this.targetRotation);
-                rotateWorld(this.sphere);
+            if (!this.isDragging) {
+                smoothMouseRotation(this.cube, this.targetRotation);
             }
+            rotateWorld(this.sphere);
             updateCubeCamera(this.renderer, this.scene, this.cubeCamera, this.cube);
         }
         this.renderer.render(this.scene, this.camera);
