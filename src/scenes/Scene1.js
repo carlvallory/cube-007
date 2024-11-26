@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
+import { dissolveEffect } from '../effects/fadeEffect.js';
 import { loadTextMesh } from '../utils/fontLoader.js';
 import { loadEnvironmentTexture } from '../utils/materialUtils.js';
 import { detectHover } from '../controls/cubeHover.js';
@@ -139,6 +140,18 @@ export class Scene1 {
     // Manejar el clic en el texto
     handleTextClick() {
         console.log('Texto "Start" clickeado');
+
+        if (this.textMesh) {
+            // Aplica el efecto de disolver
+            dissolveEffect(this.textMesh, () => {
+                // Opcional: elimina el texto de la escena después de la animación
+                this.scene.remove(this.textMesh);
+                this.textMesh.geometry.dispose();
+                this.textMesh.material.dispose();
+                this.textMesh = null;
+            });
+        }
+
         // Aquí puedes definir cualquier acción al hacer clic en el texto
         this.targetRotation.y += Math.PI;
         animateCameraTransition(this.camera, this.cube, this.renderer, this.scene, this.transition, { cameraIsActive: this.cameraIsActive});
