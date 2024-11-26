@@ -17,6 +17,11 @@ export function createObjects() {
 }
 
 export function createCube(materials, position, size) {
+    if (!materials.reflectiveMaterial || !materials.clearMaterial) {
+        console.error('Materiales no definidos o inválidos:', materials);
+        return null; // Devuelve null si los materiales son inválidos
+    }
+    
     const geometry = new THREE.BoxGeometry( size.x, size.y, size.z);
     const materialsArray = [
         materials.reflectiveMaterial,

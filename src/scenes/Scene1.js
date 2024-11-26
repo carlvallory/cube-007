@@ -105,6 +105,7 @@ export class Scene1 {
                 
             } else {
                 console.error("Error al crear el cubo. Verifica que los materiales sean válidos.");
+                return;
             }
             
         } catch (error) {
@@ -316,9 +317,8 @@ export class Scene1 {
             if (!this.isDragging) {
                 smoothMouseRotation(this.cube, this.targetRotation);
                 // Aplicar la animación de vaivén al cubo
-            } else {
-                
             }
+            
             if(this.isMouseOut) {
                 if (this.vaivenAnimation && this.vaivenAnimation.paused()) {
                     this.vaivenAnimation.resume();
