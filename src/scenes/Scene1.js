@@ -28,21 +28,26 @@ export class Scene1 {
         this.sphere = null;
         this.textMesh = null;
         this.isDragging = false;
+        this.isMouseOut = true;
         this.previousMousePosition = { x: 0, y: 0 };
         this.targetRotation = {x: 0, y: 0};
         this.gui = null
 
         this.setupMouseEvents();
+        this.setupMouseHoverEvents();
 
         // Inicializar materiales del cubo
         this.cubeMaterials = {
             reflectiveMaterial: null,
             clearMaterial: null,
+            unusedMaterial: null,
         };
 
         const { cubeCamera, cubeRenderTarget } = createCubeCamera();
         this.cubeCamera = cubeCamera
         this.cubeRenderTarget = cubeRenderTarget;
+
+        window.scene = this.scene;
     }
 
     async start() {
@@ -53,6 +58,8 @@ export class Scene1 {
         this.camera.position.z = 10;
         addAmbientLight(this.scene);
         addDirectionalLight(this.scene);
+
+        const unusedGeometry = new THREE.TorusKnotGeometry(1, 0.4, 100, 16);
 
         // Cargar el entorno de iluminación
         try {
@@ -68,6 +75,7 @@ export class Scene1 {
         try {
             this.cubeMaterials.reflectiveMaterial = this.createReflectiveMaterial();
             this.cubeMaterials.clearMaterial = this.createClearMaterial();
+            this.cubeMaterials.unusedMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 
             this.cube = createCube(this.cubeMaterials, { x: 0, y: 0, z: 0}, { x: 4, y: 4, z: 4});
             
@@ -90,10 +98,6 @@ export class Scene1 {
 
                 // Load text mesh
                 await this.addTextToCube();
-
-                // Aplicar la animación de vaivén al cubo
-                animateRotationVaiven(this.cube);
-
                 
             } else {
                 console.error("Error al crear el cubo. Verifica que los materiales sean válidos.");
@@ -233,7 +237,32 @@ export class Scene1 {
         canvas.addEventListener('mouseleave', () => {
             this.isDragging = false;
         });
+
+        // canvas.addEventListener('mouseover', () => {
+        //     this.isMouseOut = false;
+        // });
+
+        // canvas.addEventListener('mouseout', () => {
+        //     this.isMouseOut = true;
+        // });
     }
+
+    setupMouseHoverEvents() {
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+    
+        this.renderer.domElement.addEventListener('mousemove', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    
+            raycaster.setFromCamera(mouse, this.camera);
+    
+            const intersects = raycaster.intersectObject(this.cube);
+    
+            // Actualizar isMouseOut según el estado del hover
+            this.isMouseOut = intersects.length === 0;
+        });
+    }    
 
     initGUI() {
         this.gui = new GUI();
@@ -282,7 +311,16 @@ export class Scene1 {
         if( this.cube ) {
             if (!this.isDragging) {
                 smoothMouseRotation(this.cube, this.targetRotation);
+                // Aplicar la animación de vaivén al cubo
+            } else {
+                
             }
+            if(this.isMouseOut) {
+                animateRotationVaiven(this.cube);
+            } else {
+                gsap.killTweensOf(this.cube.rotation);
+            }
+
             rotateWorld(this.sphere);
             updateCubeCamera(this.renderer, this.scene, this.cubeCamera, this.cube);
         }
