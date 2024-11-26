@@ -198,6 +198,8 @@ export class Scene1 {
                 color: 0x000000,
                 specular: 0xffffff,
                 shininess: 100,
+                transparent: true,
+                opacity: 1,
             });
 
             if (this.textMesh) {
@@ -318,7 +320,7 @@ export class Scene1 {
                 smoothMouseRotation(this.cube, this.targetRotation);
                 // Aplicar la animación de vaivén al cubo
             }
-            
+
             if(this.isMouseOut) {
                 if (this.vaivenAnimation && this.vaivenAnimation.paused()) {
                     this.vaivenAnimation.resume();
