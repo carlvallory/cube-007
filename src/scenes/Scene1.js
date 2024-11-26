@@ -31,7 +31,8 @@ export class Scene1 {
         this.isMouseOut = true;
         this.previousMousePosition = { x: 0, y: 0 };
         this.targetRotation = {x: 0, y: 0};
-        this.gui = null
+        this.gui = null;
+        this.vaivenAnimation = null;
 
         this.setupMouseEvents();
         this.setupMouseHoverEvents();
@@ -98,6 +99,9 @@ export class Scene1 {
 
                 // Load text mesh
                 await this.addTextToCube();
+
+                this.vaivenAnimation = animateRotationVaiven(this.cube);
+                this.vaivenAnimation.pause();
                 
             } else {
                 console.error("Error al crear el cubo. Verifica que los materiales sean válidos.");
@@ -316,9 +320,13 @@ export class Scene1 {
                 
             }
             if(this.isMouseOut) {
-                animateRotationVaiven(this.cube);
+                if (this.vaivenAnimation && this.vaivenAnimation.paused()) {
+                    this.vaivenAnimation.resume();
+                }
             } else {
-                gsap.killTweensOf(this.cube.rotation);
+                if (this.vaivenAnimation && !this.vaivenAnimation.paused()) {
+                    this.vaivenAnimation.pause();
+                }
             }
 
             rotateWorld(this.sphere);

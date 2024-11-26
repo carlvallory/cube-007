@@ -7,7 +7,7 @@ import { gsap } from 'gsap';
  * @param {number} duration - Duración de la animación en segundos.
  */
 export function animateRotationVaiven(object, maxRotation = Math.PI / 16, duration = 1.5) {
-    gsap.to(object.rotation, {
+    return gsap.to(object.rotation, {
         y: maxRotation,
         duration: duration,
         ease: 'sine.inOut',
