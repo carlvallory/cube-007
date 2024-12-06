@@ -3,14 +3,17 @@ import gsap from 'gsap';
 import { createVideoMaterial } from '../utils/video.js';
 
 export function createVideoCube(videoUrls) {
-    const materials = videoUrls.map((url) => createVideoMaterial(url));
     const geometry = new THREE.BoxGeometry(5, 5, 5);
+    const materials = Array(6).fill(new THREE.MeshBasicMaterial({ color: 0x000000 })); // Placeholder material
     const videoCube = new THREE.Mesh(geometry, materials);
+    videoCube.videoUrls = videoUrls; // Store video URLs for later loading
+    videoCube.videoTextures = {}; // Cache for video textures
+
     return videoCube;
 }
 
 /**
- * Crea un cubo con materiales transparentes.
+ * Crea un cubo con materiales transparentes.  (This function is not directly related to video loading and could be removed if not used elsewhere)
  * @param {number} size - Tamaño del cubo.
  * @returns {THREE.Mesh} - Cubo con materiales inicializados.
  */
@@ -28,39 +31,55 @@ export function createCube(size = 4) {
     return new THREE.Mesh(geometry, materials);
 }
 
+
 /**
  * Loads a video texture for a specific face of the cube.
  * @param {THREE.Mesh} cube - The cube mesh.
  * @param {number} faceIndex - The index of the cube face (0-5).
- * @param {string} videoUrl - The URL of the video to load.
- * @param {HTMLVideoElement} videoElement - The HTML video element to use.
- * @returns {THREE.MeshBasicMaterial} - The material with the video texture applied.
  */
-export function loadVideoForFace(cube, faceIndex, videoUrl, videoElement) {
-    videoElement.src = videoUrl;
-    videoElement.play();
+export async function loadVideoForFace(cube, faceIndex) {
+    if (faceIndex < 0 || faceIndex > 5 || cube.videoTextures[faceIndex]) return; // Already loaded or invalid index
 
-    const videoTexture = new THREE.VideoTexture(videoElement);
-    const videoMaterial = new THREE.MeshBasicMaterial({
-        map: videoTexture,
-        side: THREE.DoubleSide,
-        transparent: true,
-    });
+    const videoUrl = cube.videoUrls[faceIndex];
+    if (!videoUrl) return; // No video URL for this face
 
-    cube.material[faceIndex] = videoMaterial;
+    try {
+        const video = document.createElement('video');
+        video.src = videoUrl;
+        video.crossOrigin = "anonymous"; // Important for CORS
+        video.preload = 'auto';
+        video.loop = true;
+        video.muted = true; // Consider muting if audio isn't needed
 
-    return videoMaterial;
+        await new Promise((resolve, reject) => {
+            video.onloadeddata = () => resolve(video);
+            video.onerror = reject;
+        });
+
+        const videoTexture = new THREE.VideoTexture(video);
+        videoTexture.minFilter = THREE.LinearFilter;
+        videoTexture.magFilter = THREE.LinearFilter;
+        videoTexture.format = THREE.RGBFormat;
+        cube.videoTextures[faceIndex] = videoTexture;
+        cube.material[faceIndex] = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide, transparent: true });
+
+    } catch (error) {
+        console.error(`Error loading video for face ${faceIndex}:`, error);
+    }
 }
 
+
 /**
- * Rotates the cube to the specified face index.
+ * Rotates the cube to the specified face index.  Loads the video for the new face.
  * @param {THREE.Mesh} cube - The cube mesh.
  * @param {number} targetFaceIndex - The target face index (0-5).
  * @param {Function} onComplete - Callback after rotation is complete.
  */
-export function rotateCube(cube, targetFaceIndex, onComplete = () => {}) {
+export async function rotateCube(cube, targetFaceIndex, onComplete = () => { }) {
     const totalFaces = 6;
     const targetRotationY = (targetFaceIndex / totalFaces) * Math.PI * 2;
+
+    await loadVideoForFace(cube, targetFaceIndex); // Load video before rotation
 
     gsap.to(cube.rotation, {
         y: targetRotationY,
